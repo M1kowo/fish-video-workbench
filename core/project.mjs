@@ -1,5 +1,6 @@
+import {themeFromPreset} from './themes.mjs';
 export const SCENE_TYPES = ['opening', 'definition', 'flow', 'comparison', 'recap'];
-export const DEFAULT_THEME = {name:'雾紫讲解',accent:'#7962df',background:'mist',captionStyle:'clean',fontFamily:'Microsoft YaHei',brand:'大肥鱼知识局'};
+export const DEFAULT_THEME = {...themeFromPreset('cute'),brand:'大肥鱼知识局'};
 export const DEFAULT_SETTINGS = {width:1920,height:1080,fps:30};
 export const timecode = (seconds) => `${Math.floor(seconds/60).toString().padStart(2,'0')}:${Math.floor(seconds%60).toString().padStart(2,'0')}`;
 
@@ -28,7 +29,7 @@ export function parseSubtitles(input) {
 }
 
 export function createProject({title='未命名视频',captions=[],audio=null,id='project',catalog=[]}={}) {
-  const duration=Math.max(1,audio?.duration || (captions.at(-1)?.endMs || 30000)/1000);
+  const duration=audio?.duration || Math.max(1,(captions.at(-1)?.endMs || 30000)/1000);
   return {schemaVersion:1,id,title,revision:0,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),settings:{...DEFAULT_SETTINGS},theme:{...DEFAULT_THEME},audio,duration,captions,scenes:[],catalog};
 }
 
@@ -60,9 +61,17 @@ export function validateProject(p) {
   if(!Number.isFinite(p.duration)||p.duration<=0||p.duration>7200) errors.push('时长必须在 0–7200 秒之间');
   if(!p.settings || ![24,25,30,60].includes(p.settings.fps) || p.settings.width!==1920 || p.settings.height!==1080) errors.push('首版支持 1920×1080，帧率为 24、25、30 或 60');
   if(!p.theme || !/^#[\da-f]{6}$/i.test(p.theme.accent||'')) errors.push('强调色必须是六位 HEX 颜色');
-  if(!['clean','neon','minimal'].includes(p.theme?.captionStyle)) errors.push('未知字幕样式');
-  if(!['mist','grid','dark'].includes(p.theme?.background)) errors.push('未知背景样式');
+  if(!['clean','neon','minimal','outlined'].includes(p.theme?.captionStyle)) errors.push('未知字幕样式');
+  if(!['mist','grid','dark','paper'].includes(p.theme?.background)) errors.push('未知背景样式');
+  if(p.theme?.titleStyle!==undefined&&!['plain','sticker'].includes(p.theme.titleStyle)) errors.push('未知标题样式');
+  if(p.theme?.grain!==undefined&&(!Number.isFinite(p.theme.grain)||p.theme.grain<0||p.theme.grain>0.3)) errors.push('纸张颗粒强度必须在 0–0.3 之间');
+  if(p.theme?.shadow!==undefined&&(!Number.isFinite(p.theme.shadow)||p.theme.shadow<0||p.theme.shadow>1)) errors.push('标题投影强度必须在 0–1 之间');
+  if(p.theme?.titleFontFamily!==undefined&&(typeof p.theme.titleFontFamily!=='string'||p.theme.titleFontFamily.length>100)) errors.push('标题字体名称无效');
+  if(p.theme?.charactersEnabled!==undefined&&typeof p.theme.charactersEnabled!=='boolean') errors.push('角色显示开关必须是布尔值');
   if(!Array.isArray(p.captions)||!Array.isArray(p.scenes)||!Array.isArray(p.catalog)) return {valid:false,errors:[...errors,'缺少字幕、场景或素材数组'],warnings};
+  if(p.captions.some(c=>!c||typeof c!=='object')||p.scenes.some(s=>!s||typeof s!=='object')||p.catalog.some(a=>!a||typeof a!=='object')) return {valid:false,errors:[...errors,'字幕、场景和素材项必须是对象'],warnings};
+  if(typeof p.theme?.brand!=='string'||p.theme.brand.length>40) errors.push('品牌名称必须是 40 字以内的文本');
+  if(typeof p.theme?.fontFamily!=='string'||p.theme.fontFamily.length>100) errors.push('字体名称无效');
   const ids=new Set();
   const assetIds=new Set(p.catalog.map(a=>a.id));
   const captionIds=new Set();
@@ -87,7 +96,9 @@ export function validateProject(p) {
     if(s.start>previousEnd+0.05) warnings.push(`场景 ${s.id} 之前存在空白，画面将延续上一场景`);
     previousEnd=s.end;
     if(typeof s.title!=='string'||!s.title.trim()||s.title.length>56) errors.push(`场景 ${s.id} 标题不能为空且最多 56 字`);
+    if(typeof s.subtitle!=='string'||s.subtitle.length>100) errors.push(`场景 ${s.id} 的引导短句必须是 100 字以内的文本`);
     if(!Array.isArray(s.items)||s.items.length>6||s.items.some(t=>typeof t!=='string'||t.length>100)) errors.push(`场景 ${s.id} 最多 6 个内容项，每项最多 100 字`);
+    if(s.items?.some?.(t=>typeof t==='string'&&t.length>28)) warnings.push(`场景 ${s.id} 有较长的图解文本，请检查预览中的排版`);
     if(s.type==='comparison'&&s.items?.length!==2) warnings.push(`场景 ${s.id} 的对比建议使用 2 项内容`);
     if(!['fade','slide','none'].includes(s.transition)) errors.push(`场景 ${s.id} 转场无效`);
     if(!Array.isArray(s.captionIds)||s.captionIds.some(id=>!captionIds.has(id))) errors.push(`场景 ${s.id} 引用了不存在的字幕`);

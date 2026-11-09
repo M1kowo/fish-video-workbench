@@ -32,6 +32,11 @@ app.use(express.json({limit:'4mb'}));
 app.use('/media',express.static(PUBLIC));
 app.use('/outputs',express.static(path.join(DATA,'renders')));
 const upload=multer({storage:multer.memoryStorage(),limits:{fileSize:150*1024*1024,files:2}});
+function uploadName(name){
+  if([...name].some(c=>c.charCodeAt(0)>255))return name;
+  const decoded=Buffer.from(name,'latin1').toString('utf8');
+  return decoded.includes('\uFFFD')?name:decoded;
+}
 const validId=id=>/^[a-zA-Z0-9_-]{1,90}$/.test(id);
 const projectPath=id=>{if(!validId(id)) throw Object.assign(new Error('无效项目 ID'),{status:400});return path.join(DATA,'projects',`${id}.json`);};
 const readProject=async id=>JSON.parse(await fs.readFile(projectPath(id),'utf8'));
@@ -83,10 +88,10 @@ app.post('/api/projects/import',upload.fields([{name:'subtitles',maxCount:1},{na
       if(!metadata.streams.some(s=>s.codec_type==='audio'))throw new Error('文件中没有音轨');
       const duration=Number(metadata.format.duration);
       if(!Number.isFinite(duration)||duration<=0)throw new Error('无法读取音频时长');
-      audio={src:relative,name:file.originalname,duration};
+      audio={src:relative,name:uploadName(file.originalname),duration};
     }catch(e){throw Object.assign(new Error(`音频读取失败：${e.message}`),{status:400});}
   }
-  const p=createProject({id:`video-${randomUUID().slice(0,8)}`,title:req.body.title||subtitles.originalname.replace(/\.[^.]+$/,''),captions,audio,catalog});
+  const p=createProject({id:`video-${randomUUID().slice(0,8)}`,title:req.body.title||uploadName(subtitles.originalname).replace(/\.[^.]+$/,''),captions,audio,catalog});
   const validation=validateProject(p);
   if(!validation.valid)throw Object.assign(new Error(validation.errors.join('；')),{status:400});
   res.status(201).json(await saveProject(p));
@@ -105,7 +110,7 @@ app.post('/api/projects/:id/draft',async(req,res)=>{
 });
 app.get('/api/projects/:id/validate',async(req,res)=>res.json(validateProject(await readProject(req.params.id))));
 
-const jobs=new Map();let queue=Promise.resolve();let bundlePromise=null;
+const jobs=new Map();let queue=Promise.resolve();
 for(const filename of await fs.readdir(path.join(DATA,'jobs'))){
   if(!filename.endsWith('.json'))continue;
   const job=JSON.parse(await fs.readFile(path.join(DATA,'jobs',filename),'utf8'));
@@ -116,9 +121,8 @@ async function persistJob(job){await atomicWrite(path.join(DATA,'jobs',`${job.id
 async function renderJob(job,project,options){
   try{
     job.status='running';job.stage='正在准备渲染环境';await persistJob(job);
-    if(!bundlePromise)bundlePromise=bundle({entryPoint:path.join(ROOT,'src/index.ts'),publicDir:PUBLIC,onProgress:()=>{}}).catch(e=>{bundlePromise=null;throw e;});
-    const serveUrl=await bundlePromise;
-    const inputProps={project,assetBaseUrl:`${BASE}/media/`};
+    const serveUrl=await bundle({entryPoint:path.join(ROOT,'src/index.ts'),publicDir:PUBLIC,onProgress:()=>{}});
+    const inputProps={project,assetBaseUrl:''};
     const browserExecutable=process.env.FISH_BROWSER || 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe';
     const rendererOptions={serveUrl,inputProps,browserExecutable,chromiumOptions:{disableWebSecurity:false}};
     const composition=await selectComposition({...rendererOptions,id:'FishVideo'});
@@ -141,9 +145,10 @@ app.post('/api/projects/:id/render',async(req,res)=>{
   if(req.body.revision!==p.revision)return res.status(409).json({error:'请保存并重新加载最新版本后导出'});
   const kind=req.body.kind==='frame'?'frame':'video';
   if(req.body.time!==undefined&&(!Number.isFinite(req.body.time)||req.body.time<0))return res.status(400).json({error:'关键帧时间无效'});
-  const existing=[...jobs.values()].find(j=>j.projectId===p.id&&j.revision===p.revision&&j.kind===kind&&['queued','running'].includes(j.status));
+  const signature=JSON.stringify({kind,quality:req.body.quality==='preview'?'preview':'full',time:kind==='frame'?(req.body.time||0):0});
+  const existing=[...jobs.values()].find(j=>j.projectId===p.id&&j.revision===p.revision&&j.signature===signature&&['queued','running'].includes(j.status));
   if(existing)return res.json(existing);
-  const job={id:randomUUID(),projectId:p.id,revision:p.revision,kind,status:'queued',progress:0,stage:'等待渲染',createdAt:new Date().toISOString()};
+  const job={id:randomUUID(),projectId:p.id,revision:p.revision,kind,signature,status:'queued',progress:0,stage:'等待渲染',createdAt:new Date().toISOString()};
   jobs.set(job.id,job);await persistJob(job);
   queue=queue.catch(()=>{}).then(()=>renderJob(job,p,req.body));
   res.status(202).json(job);

@@ -1,0 +1,31 @@
+import assert from 'node:assert/strict';
+import {execFile} from 'node:child_process';
+import {promisify} from 'node:util';
+import {promises as fs} from 'node:fs';
+import path from 'node:path';
+const run=promisify(execFile);
+const base='http://127.0.0.1:4318';
+const fixture=path.resolve('data/test-audio.wav');
+await run('ffmpeg',['-hide_banner','-loglevel','error','-f','lavfi','-i','anullsrc=r=44100:cl=mono','-t','2','-y',fixture],{windowsHide:true});
+async function request(route,options={}){const r=await fetch(base+route,options);return {status:r.status,data:await r.json()};}
+const json=value=>({headers:{'Content-Type':'application/json'},body:JSON.stringify(value)});
+const health=await request('/api/health');assert.equal(health.data.ok,true);
+const form=new FormData();form.append('title','[集成测试] 音频字幕与角色');form.append('subtitles',new Blob(['1\n00:00:00,000 --> 00:00:02,000\n字幕、音频与角色同步验证。']),'test.srt');form.append('audio',new Blob([await fs.readFile(fixture)]),'test-audio.wav');
+const imported=await request('/api/projects/import',{method:'POST',body:form});assert.equal(imported.status,201);let project=imported.data;assert.equal(project.duration,2);assert.ok(project.audio.src.startsWith('uploads/'));
+const drafted=await request(`/api/projects/${project.id}/draft`,{method:'POST',...json({revision:project.revision})});assert.equal(drafted.status,200);project=drafted.data;
+const previousRevision=project.revision;
+project.scenes[0].title='字幕、音频与角色';project.scenes[0].character={assetId:'lean_forward',position:'right',height:210,delay:0,duration:2};
+const saved=await request(`/api/projects/${project.id}`,{method:'PUT',...json(project)});assert.equal(saved.status,200);project=saved.data;assert.equal(project.revision,previousRevision+1);
+const stale=await request(`/api/projects/${project.id}`,{method:'PUT',...json({...project,revision:previousRevision})});assert.equal(stale.status,409);
+const invalid=await request(`/api/projects/${project.id}`,{method:'PUT',...json({...project,scenes:[{...project.scenes[0],end:30}]})});assert.equal(invalid.status,400);
+const check=await request(`/api/projects/${project.id}/validate`);assert.equal(check.data.valid,true);
+const origin=await request('/api/projects/demo',{method:'POST',headers:{Origin:'https://unrelated.example'}});assert.equal(origin.status,403);
+const {stdout}=await run(process.execPath,['cli.mjs','inspect',project.id],{windowsHide:true});assert.equal(JSON.parse(stdout).id,project.id);
+const rendered=await request(`/api/projects/${project.id}/render`,{method:'POST',...json({revision:project.revision,kind:'video',quality:'preview'})});assert.equal(rendered.status,202);let job=rendered.data;
+const deadline=Date.now()+180000;
+while(['queued','running'].includes(job.status)&&Date.now()<deadline){await new Promise(r=>setTimeout(r,1000));job=(await request(`/api/jobs/${job.id}`)).data;}
+assert.equal(job.status,'completed',job.error||'render timeout');
+const output=path.resolve('data/renders',path.basename(job.outputUrl));
+const {stdout:metadata}=await run('ffprobe',['-v','error','-show_format','-show_streams','-of','json',output],{windowsHide:true});
+const parsed=JSON.parse(metadata);assert.ok(parsed.streams.some(s=>s.codec_type==='audio'));const video=parsed.streams.find(s=>s.codec_type==='video');assert.equal(video.width,960);assert.equal(video.height,540);assert.ok(Math.abs(Number(parsed.format.duration)-2)<0.15);
+console.log(JSON.stringify({passed:true,projectId:project.id,jobId:job.id,output,checks:['audio+SRT import','draft','save','revision conflict','invalid timing','origin protection','agent CLI','MP4 render','audio mux','resolution/duration']},null,2));
