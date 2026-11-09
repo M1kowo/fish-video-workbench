@@ -1,0 +1,117 @@
+[
+  {
+    "id": "box_surprise",
+    "name": "开盒 · 惊喜",
+    "tags": [
+      "发现",
+      "揭晓",
+      "成果"
+    ],
+    "src": "characters/1.0.gif",
+    "thumbnail": "characters/box_surprise.png",
+    "duration": 5.7,
+    "canvas": [
+      640,
+      640
+    ],
+    "bounds": [
+      60,
+      82,
+      543,
+      538
+    ],
+    "loop": "once"
+  },
+  {
+    "id": "box_surprise_variant",
+    "name": "开盒 · 小画布变体",
+    "tags": [
+      "发现",
+      "揭晓",
+      "成果"
+    ],
+    "src": "characters/1.gif",
+    "thumbnail": "characters/box_surprise_variant.png",
+    "duration": 5.7,
+    "canvas": [
+      772,
+      640
+    ],
+    "bounds": [
+      189,
+      114,
+      554,
+      460
+    ],
+    "loop": "once"
+  },
+  {
+    "id": "swing",
+    "name": "荡秋千 · 轻松",
+    "tags": [
+      "轻松",
+      "等待",
+      "收尾"
+    ],
+    "src": "characters/10.gif",
+    "thumbnail": "characters/swing.png",
+    "duration": 8.8,
+    "canvas": [
+      640,
+      640
+    ],
+    "bounds": [
+      111,
+      55,
+      554,
+      542
+    ],
+    "loop": "once"
+  },
+  {
+    "id": "lean_forward",
+    "name": "探头 · 关注",
+    "tags": [
+      "提问",
+      "观察",
+      "注意"
+    ],
+    "src": "characters/12.gif",
+    "thumbnail": "characters/lean_forward.png",
+    "duration": 5.4,
+    "canvas": [
+      640,
+      640
+    ],
+    "bounds": [
+      0,
+      123,
+      640,
+      540
+    ],
+    "loop": "once"
+  },
+  {
+    "id": "gaming_frustration",
+    "name": "打游戏 · 抓狂",
+    "tags": [
+      "痛点",
+      "失败",
+      "误区"
+    ],
+    "src": "characters/13.gif",
+    "thumbnail": "characters/gaming_frustration.png",
+    "duration": 9.1,
+    "canvas": [
+      640,
+      640
+    ],
+    "bounds": [
+      131,
+      133,
+      567,
+      578
+    ],
+    "loop": "once"
+  }
+]
