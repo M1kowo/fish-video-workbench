@@ -2,18 +2,47 @@
 
 输入字幕与配音，由用户或外部 agent 编排讲解画面、角色和动效，预览后导出视频。
 
-## 启动
+## 新电脑安装与启动（Windows）
 
-要求 Node.js 22+、FFmpeg/ffprobe，以及 Chromium / Microsoft Edge。当前 Windows 主机已具备这些基础工具。
+克隆仓库只会取得项目文件，不会安装运行环境。需要：
+
+- 完整的 Node.js 与 npm。推荐 Node 22 的近期维护版本（至少 22.13）或 Node 24；已有版本是否兼容以 `package.json` 的 `engines.node` 为准。只有 `node.exe`、没有 npm 的应用内置运行时不够用。
+- FFmpeg，包含可在 PATH 中调用的 `ffmpeg.exe` 和 `ffprobe.exe`。导入音频时会调用 ffprobe。
+- Microsoft Edge 或其他 Chromium 浏览器。导出前需要检查浏览器实际路径，必要时设置 `FISH_BROWSER`。
+- Git 用于克隆和后续更新；也可以从 GitHub 下载源码 ZIP。
+
+以安装到 `D:\大肥鱼视频工作台\workbench` 为例；也可以选择其他目录。克隆后应在**包含 `package.json` 的目录**执行命令，不需要再创建一层 workbench。
 
 ```powershell
-cd 'E:\MCS\大肥鱼视频工作台\workbench'
-npm run dev
+New-Item -ItemType Directory -Force 'D:\大肥鱼视频工作台' | Out-Null
+git clone --depth 1 https://github.com/M1kowo/fish-video-workbench.git 'D:\大肥鱼视频工作台\workbench'
+Set-Location -LiteralPath 'D:\大肥鱼视频工作台\workbench'
+
+node -v
+npm.cmd -v
+ffmpeg -version
+ffprobe -version
+npm.cmd ci
+# 上一步成功后再启动
+npm.cmd run dev
 ```
 
-打开 http://127.0.0.1:4318 。也可以运行 `start-workbench.ps1`。服务仅监听本机，文件不上传云端。
+打开 http://127.0.0.1:4318 。在另一个 PowerShell 窗口运行 `Invoke-RestMethod http://127.0.0.1:4318/api/health`，应返回 `ok: true`。工程列表可以为空，新副本不会自动创建示例工程。首次完整验收还应检查音频导入及短视频导出。
 
-安装新副本时先执行 `npm install`。若 GIF 尚未打包，可用 `python scripts/prepare_assets.py` 从当前用户桌面的 `GIF` 目录准备素材；已经打包的副本无需 Python。
+前台运行 `npm.cmd run dev` 时，在该窗口按 Ctrl+C 停止服务。已有环境也可以运行 `powershell -NoProfile -ExecutionPolicy Bypass -File .\start-workbench.ps1`；这个脚本会后台启动服务，关闭浏览器或启动脚本窗口不会停止后台服务。它默认检查 4318 端口；使用自定义端口时请在已设置环境变量的终端中直接运行 `npm.cmd run dev`。
+
+### 下载或安装卡住
+
+- Node 官方入口：[nodejs.org/en/download](https://nodejs.org/en/download)。选择对应 Windows 架构的完整 MSI 或 ZIP 包。winget 下载卡住时切换直连下载或作者提供的离线包；更换包管理器仍可能下载同一个地址。不要卸载应用自带的 Node 来修复项目。
+- Node ZIP 解压后，找到同时包含 `node.exe`、`npm.cmd`、`node_modules\npm` 的目录；把该目录放在当前进程 PATH 前面。下载链接对应的校验文件可用于 SHA-256 校验。
+- FFmpeg Windows 构建：[Gyan 下载页](https://www.gyan.dev/ffmpeg/builds/)。ZIP 通常带版本号顶层目录，实际 PATH 必须指向同时包含 `ffmpeg.exe` 和 `ffprobe.exe` 的 `bin`，不要假设直接解压就得到 `C:\ffmpeg\bin`。
+- 可把便携工具放在仓库之外，例如 `D:\大肥鱼视频工作台\tools`。每次启动服务都应继承相同 PATH；安装后也要在当前终端重新验证实际命令路径，必要时重启终端或 Codex。
+- `npm.cmd` 可以避免 PowerShell 优先匹配 `npm.ps1` 造成的执行策略问题。`npm ci` 按仓库 lockfile 安装；失败时先看完整日志，不要自动改成 `npm install`、删 lockfile 或升级依赖。npm registry 的切换只针对依赖下载，不能解决 Node 安装包下载失败。
+- 下载持续 60 秒为 0 字节或连续 120 秒无进展时，停止本次下载并切换方案；有持续进展的大文件下载可继续。全部可用方案失败时，向作者索取离线包并说明需要的版本和架构。
+
+完整的可转发安装提示词见 [Windows 环境配置提示词](docs/windows-setup-prompt.md)，支持从中断的位置继续安装。
+
+服务仅监听本机；正常工作流程中的字幕、配音、工程和视频文件保存在本机。安装依赖和下载工具需要联网。仓库已包含角色素材，无需 Python；仅在需要重新整理桌面 GIF 时才使用 `python scripts/prepare_assets.py`。
 
 ## 当前可用
 
