@@ -1,0 +1,11 @@
+{
+  "title": "text-mask",
+  "background": "mesh-gradient",
+  "duration": 0.8,
+  "stagger": 0.15,
+  "data": [
+    {"label": "演示 A", "value": 24},
+    {"label": "演示 B", "value": 72},
+    {"label": "演示 C", "value": 96}
+  ]
+}

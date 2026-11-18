@@ -1,9 +1,17 @@
-import {AbsoluteFill,AnimatedImage,Sequence,interpolate,staticFile,useCurrentFrame,useVideoConfig} from 'remotion';
+import {AbsoluteFill,AnimatedImage,Freeze,Sequence,interpolate,staticFile,useCurrentFrame,useVideoConfig} from 'remotion';
 import {Audio} from '@remotion/media';
 import type {CharacterAsset,Project,Scene} from './model';
 import {EditorialVisual} from './EditorialVisual';
 import {PaperBackground,PaperHeading,paperPop} from './PaperStyle';
 import {areCharactersEnabled} from '../core/themes.mjs';
+import {isTechTheme,getTechScene,getTechTransition} from '../core/tech.mjs';
+import {TechFrame} from './TechStyle';
+import {TechSceneStage} from './TechScenes';
+import {getMotionTransition} from '../core/motions.mjs';
+import {MotionTitle} from './motion/Title';
+import {MotionBackground} from './motion/Background';
+import {MotionTemplate} from './motion/Templates';
+import {MotionTransition} from './motion/Transition';
 
 export type VideoProps={project:Project;assetBaseUrl?:string};
 const clamp={extrapolateLeft:'clamp',extrapolateRight:'clamp'} as const;
@@ -19,6 +27,8 @@ function Character({asset,height,base}:{asset:CharacterAsset;height:number;base:
 
 function Diagram({scene,localFrame,accent,dark,paper=false}:{scene:Scene;localFrame:number;accent:string;dark:boolean;paper?:boolean}){
   const {fps}=useVideoConfig();
+  if(getTechScene(scene.visual?.kind))return <div style={{height:440,marginTop:30,position:'relative'}}><div style={{position:'absolute',width:1680,height:480,scale:.92,transformOrigin:'top left'}}><TechSceneStage scene={scene} frame={localFrame} fps={fps} accent={accent}/></div></div>;
+  if(scene.motion?.template)return <MotionTemplate scene={scene} frame={localFrame} fps={fps} accent={accent} dark={dark} paper={paper}/>;
   if(scene.visual)return <EditorialVisual scene={scene} localFrame={localFrame} accent={accent} dark={dark} paper={paper}/>;
   const ink=dark?'#f5f2ff':paper?'#304f68':'#30314a';const muted=dark?'#a6a8c3':paper?'#6c8b9f':'#9490a9';
   const surface=dark?'#282c47':paper?'#fffdf6d9':'#ffffff';
@@ -33,14 +43,14 @@ function Diagram({scene,localFrame,accent,dark,paper=false}:{scene:Scene;localFr
   return <div style={{display:'flex',gap:30,marginTop:72,maxWidth:1550,flexWrap:'wrap'}}>{scene.items.map((item,i)=><div data-layout-check key={i} style={{...itemStyle(i),padding:'35px 42px',background:surface,border:'1px solid '+(dark?'#41445e':'#e6e2f0'),borderRadius:20,maxWidth:scene.items.length===1?'100%':'48%',fontSize:42,fontWeight:500,lineHeight:1.6,color:ink,overflowWrap:'anywhere',boxShadow:'0 15px 30px #29234204'}}><span style={{color:accent,marginRight:18}}>✦</span>{item}</div>)}</div>;
 }
 
-export function VideoComposition({project,assetBaseUrl='/media/'}:VideoProps){
+function SceneFrame({project,assetBaseUrl='/media/',hideCaptions=false}:VideoProps&{hideCaptions?:boolean}){
   const frame=useCurrentFrame();const {fps}=useVideoConfig();const time=frame/fps;
   const scene=project.scenes.find(s=>time>=s.start&&time<s.end)||[...project.scenes].reverse().find(s=>time>=s.start)||project.scenes[0];
-  const cap=project.captions.find(c=>time*1000>=c.startMs&&time*1000<c.endMs);
   const localFrame=scene?frame-Math.round(scene.start*fps):frame;
+  if(isTechTheme(project.theme)&&scene)return <TechFrame project={project} scene={scene} frame={frame} localFrame={localFrame} fps={fps}>{!hideCaptions&&<CaptionTrack project={project} frame={frame} cover={false} dark ink="#f2f6ff"/>}</TechFrame>;
   const paper=project.theme.background==='paper';
   const charactersEnabled=areCharactersEnabled(project.theme);
-  const cover=paper&&scene?.type==='opening';
+  const cover=paper&&scene?.type==='opening'&&!scene.motion;
   const dark=!paper&&(scene?.type==='opening'||project.theme.background==='dark');
   const accent=project.theme.accent;const ink=dark?'#f3f1ff':paper?'#304f68':'#292c44';const muted=dark?'#9ea3c5':paper?'#6c879a':'#aaa4ba';
   const coverAsset=project.catalog.find(a=>a.id==='box_surprise');
@@ -48,18 +58,42 @@ export function VideoComposition({project,assetBaseUrl='/media/'}:VideoProps){
   const enter=scene?.transition==='none'?1:interpolate(localFrame,[0,0.35*fps],[0,1],clamp);
   return <AbsoluteFill style={{fontFamily:`"${project.theme.fontFamily}", "Microsoft YaHei", sans-serif`,background:dark?'#1b203b':'#f6f5fb',color:ink,overflow:'hidden'}}>
     {paper&&<PaperBackground grain={project.theme.grain??0.14} texture={resolveAsset(assetBaseUrl,'themes/paper-grain.svg')}/>}
+    {scene?.motion?.background&&<MotionBackground motion={scene.motion} frame={localFrame} fps={fps} accent={accent} id={scene.id}/>}
     {!paper&&<AbsoluteFill style={{background:`radial-gradient(ellipse at ${75+Math.sin(time*0.15)*5}% 15%,${accent}${dark?'28':'12'},transparent 58%)`}}/>}
     {project.theme.background==='grid'&&!dark&&<AbsoluteFill style={{backgroundImage:'linear-gradient(#e9e5f050 1px,transparent 1px),linear-gradient(90deg,#e9e5f050 1px,transparent 1px)',backgroundSize:'70px 70px'}}/>}
     <div style={{position:'absolute',left:112,right:112,top:75,display:'flex',justifyContent:'space-between',alignItems:'center',fontSize:25,color:muted,letterSpacing:3,zIndex:3}}><div style={{display:'flex',alignItems:'center',gap:16}}><span style={{width:16,height:16,borderRadius:8,background:accent}}/><span style={{fontWeight:650}}>{project.theme.brand}</span></div><span style={{fontSize:21,letterSpacing:2}}>{scene?`${String(project.scenes.indexOf(scene)+1).padStart(2,'0')} / ${String(project.scenes.length).padStart(2,'0')}`:'READY TO CREATE'}</span></div>
     {cover&&scene?<div style={{position:'absolute',left:112,right:112,top:175,opacity:enter,zIndex:2}}><div style={{fontSize:30,color:'#f7fcff',letterSpacing:3,textShadow:'0 2px 4px #24485d66',marginBottom:33}}>{scene.subtitle}</div><div style={{maxWidth:1270}}><PaperHeading text={scene.title} size={130} shadow={project.theme.shadow??0.65} fontFamily={project.theme.titleFontFamily||'Microsoft YaHei'} cover/></div><div style={{display:'inline-block',fontSize:34,color:'#3d6d91',fontWeight:700,marginTop:35,padding:'16px 25px',borderRadius:18,background:'#fffdf5a3',border:'2px solid #ffffffb0',rotate:'-1deg'}}>{scene.visual?.kind==='cta'?'安装教程 · 使用文档 · Agent 指令':'一句自然语言，连接 CAD 工作流。'}</div></div>:scene?<div style={{position:'absolute',left:112,right:112,top:scene.type==='opening'?245:205,opacity:enter,translate:`0px ${scene.transition==='slide'?interpolate(localFrame,[0,0.4*fps],[40,0],clamp):0}px`}}>
       <div style={{fontSize:27,color:muted,letterSpacing:4,marginBottom:28}}>{scene.subtitle}</div>
-      {paper&&project.theme.titleStyle==='sticker'?<PaperHeading text={scene.title} size={scene.title.length>25?69:79} shadow={(project.theme.shadow??0.65)*0.7} fontFamily={project.theme.titleFontFamily||'Microsoft YaHei'}/>:<div data-layout-check style={{fontSize:scene.type==='opening'?102:scene.title.length>26?72:83,lineHeight:1.35,fontWeight:800,letterSpacing:-2,whiteSpace:'pre-line',maxWidth:scene.type==='opening'?1280:1620,overflowWrap:'anywhere'}}>{scene.title}</div>}
+      {scene.motion?.title?<MotionTitle scene={scene} frame={localFrame} fps={fps} accent={accent} style={{fontSize:scene.title.length>28?54:72,lineHeight:1.35,fontWeight:700,whiteSpace:'pre-line',maxWidth:1620,overflowWrap:'anywhere'}}/>:paper&&project.theme.titleStyle==='sticker'&&!scene.motion?<PaperHeading text={scene.title} size={scene.title.length>25?69:79} shadow={(project.theme.shadow??0.65)*0.7} fontFamily={project.theme.titleFontFamily||'Microsoft YaHei'}/>:<div data-layout-check style={{fontSize:scene.motion?(scene.title.length>28?54:72):scene.type==='opening'?102:scene.title.length>26?72:83,lineHeight:1.35,fontWeight:800,letterSpacing:-2,whiteSpace:'pre-line',maxWidth:scene.type==='opening'?1280:1620,overflowWrap:'anywhere'}}>{scene.title}</div>}
       <Diagram scene={scene} localFrame={localFrame} accent={accent} dark={dark} paper={paper}/>
     </div>:<div style={{margin:'auto',textAlign:'center'}}><div style={{fontSize:88,fontWeight:750}}>每一句讲解，都值得一个画面。</div><div style={{fontSize:36,color:muted,marginTop:35}}>字幕已就绪，等待分镜编排</div></div>}
     {charactersEnabled&&cover&&scene&&project.theme.coverCharacter!==false&&coverAsset&&<Sequence name="封面大角色" from={Math.round(scene.start*fps)} durationInFrames={Math.max(1,Math.round((scene.end-scene.start)*fps))} premountFor={fps}><div style={{position:'absolute',right:-170,bottom:-270,zIndex:2}}><Character asset={coverAsset} height={800} base={assetBaseUrl}/></div></Sequence>}
     {charactersEnabled&&!cover&&scene&&char&&asset&&<Sequence name={`角色 ${asset.name}`} from={Math.round((scene.start+char.delay)*fps)} durationInFrames={Math.max(1,Math.round(char.duration*fps))} premountFor={fps}><div style={{position:'absolute',[char.position==='left'?'left':'right']:100,bottom:scene.type==='opening'?240:195}}><Character asset={asset} height={char.height} base={assetBaseUrl}/></div></Sequence>}
-    {cap&&<div style={{position:'absolute',left:cover?140:250,right:cover?400:250,bottom:78,zIndex:5,display:'flex',justifyContent:'center',textAlign:'center'}}><div data-layout-check style={{fontFamily:`"${project.theme.fontFamily}",sans-serif`,fontSize:cap.text.length>34?42:49,fontWeight:750,lineHeight:1.55,maxWidth:1320,overflowWrap:'anywhere',padding:project.theme.captionStyle==='clean'?'15px 32px':0,borderRadius:16,background:project.theme.captionStyle==='clean'?(dark?'#30344ce8':'#fffffff2'):'transparent',color:project.theme.captionStyle==='outlined'?'#ffffff':project.theme.captionStyle==='neon'?'#142007':project.theme.captionStyle==='minimal'?'#fff':ink,paintOrder:'stroke fill',WebkitTextStroke:project.theme.captionStyle==='outlined'?'5px #325b78':project.theme.captionStyle==='minimal'?'1.5px #26233c':project.theme.captionStyle==='neon'?'1px #192211':undefined,textShadow:project.theme.captionStyle==='outlined'?'0 4px 4px #21405866':project.theme.captionStyle==='neon'?'0 0 5px #b5ff54,0 0 14px #a5ff3c,0 0 28px #8cff00':project.theme.captionStyle==='minimal'?'0 2px 8px #0008':'none'}}>{cap.text}</div></div>}
+    {!hideCaptions&&<CaptionTrack project={project} frame={frame} cover={cover} dark={dark} ink={ink}/>}
     <div style={{position:'absolute',left:112,right:112,bottom:35,height:3,background:dark?'#ffffff0c':'#3e36500a'}}><div style={{height:'100%',width:`${Math.min(100,time/project.duration*100)}%`,background:`${accent}70`}}/></div>
+  </AbsoluteFill>;
+}
+
+
+function CaptionTrack({project,frame,cover,dark,ink}:{project:Project;frame:number;cover:boolean;dark:boolean;ink:string}){
+  const cap=project.captions.find(c=>frame/project.settings.fps*1000>=c.startMs&&frame/project.settings.fps*1000<c.endMs);
+  return (cap&&<div style={{position:'absolute',left:cover?140:250,right:cover?400:250,bottom:78,zIndex:5,display:'flex',justifyContent:'center',textAlign:'center'}}><div data-layout-check style={{fontFamily:`"${project.theme.fontFamily}",sans-serif`,fontSize:cap.text.length>34?42:49,fontWeight:750,lineHeight:1.55,maxWidth:1320,overflowWrap:'anywhere',padding:project.theme.captionStyle==='clean'?'15px 32px':0,borderRadius:16,background:project.theme.captionStyle==='clean'?(dark?'#30344ce8':'#fffffff2'):'transparent',color:project.theme.captionStyle==='tech'?'#86fff2':project.theme.captionStyle==='outlined'?'#ffffff':project.theme.captionStyle==='neon'?'#142007':project.theme.captionStyle==='minimal'?'#fff':ink,paintOrder:'stroke fill',WebkitTextStroke:project.theme.captionStyle==='tech'?'1.5px #061219':project.theme.captionStyle==='outlined'?'5px #325b78':project.theme.captionStyle==='minimal'?'1.5px #26233c':project.theme.captionStyle==='neon'?'1px #192211':undefined,textShadow:project.theme.captionStyle==='tech'?'0 3px 4px #0009':project.theme.captionStyle==='outlined'?'0 4px 4px #21405866':project.theme.captionStyle==='neon'?'0 0 5px #b5ff54,0 0 14px #a5ff3c,0 0 28px #8cff00':project.theme.captionStyle==='minimal'?'0 2px 8px #0008':'none'}}>{cap.text}</div></div>)||null;
+}
+
+export function VideoComposition({project,assetBaseUrl='/media/'}:VideoProps){
+  const frame=useCurrentFrame();
+  const {fps}=useVideoConfig();
+  const transition=getMotionTransition(project,frame)||getTechTransition(project,frame);
+  const scene=project.scenes.find(s=>frame/fps>=s.start&&frame/fps<s.end);
+  const paper=project.theme.background==='paper';
+  const dark=!paper&&(scene?.type==='opening'||project.theme.background==='dark');
+  const ink=dark?'#f3f1ff':paper?'#304f68':'#292c44';
+  const cover=paper&&scene?.type==='opening'&&!scene.motion;
+  return <AbsoluteFill>
+    {transition?<><MotionTransition id={transition.id} progress={transition.progress} background={dark?'#1b203b':'#f6f5fb'}
+      previous={<Freeze frame={Math.max(0,Math.ceil(transition.previous.end*fps-1e-7)-1)}><SceneFrame project={project} assetBaseUrl={assetBaseUrl} hideCaptions/></Freeze>}
+      current={<SceneFrame project={project} assetBaseUrl={assetBaseUrl} hideCaptions/>}/>
+    <CaptionTrack project={project} frame={frame} cover={cover} dark={dark} ink={ink}/></>:<SceneFrame project={project} assetBaseUrl={assetBaseUrl}/>}
     {project.audio&&<Audio src={resolveAsset(assetBaseUrl,project.audio.src)} premountFor={fps}/>}
   </AbsoluteFill>;
 }

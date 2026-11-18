@@ -25,8 +25,8 @@ test('switching back to cute restores GIFs without deleting their scene timing',
   p.theme=themeFromPreset('standard',p.theme);assert.equal(areCharactersEnabled(p.theme),false);assert.deepEqual(p.scenes,original);
   p.theme=themeFromPreset('cute',p.theme);assert.equal(p.theme.name,'可爱');assert.equal(areCharactersEnabled(p.theme),true);assert.equal(p.theme.coverCharacter,true);assert.deepEqual(p.scenes,original);
 });
-test('legacy project presets resolve to the two public video styles',()=>{
-  assert.deepEqual(THEME_PRESETS.map(p=>p.name),['标准','可爱']);
+test('legacy projects retain their styles alongside the new tech preset',()=>{
+  assert.deepEqual(THEME_PRESETS.map(p=>p.name),['标准','可爱','科技']);
   assert.equal(getVideoStyle({preset:'blue-paper',background:'paper'}),'cute');
   assert.equal(getVideoStyle({preset:'mist',background:'mist'}),'standard');
   assert.equal(themeFromPreset('blue-paper').preset,'cute');

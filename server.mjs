@@ -1,3 +1,4 @@
+import './core/render-env.mjs';
 import express from 'express';
 import multer from 'multer';
 import {promises as fs} from 'node:fs';
@@ -9,6 +10,8 @@ import {promisify} from 'node:util';
 import {bundle} from '@remotion/bundler';
 import {selectComposition,renderMedia,renderStill} from '@remotion/renderer';
 import {createProject,demoProject,draftStoryboard,parseSubtitles,validateProject} from './core/project.mjs';
+import {MOTION_CATALOG,getMotionPreset} from './core/motions.mjs';
+import {TECH_SCENES,getTechScene} from './core/tech.mjs';
 
 const ROOT=path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC=path.join(ROOT,'public');
@@ -61,6 +64,10 @@ async function checkMedia(project){
 
 app.get('/api/health',(_req,res)=>res.json({ok:true,version:'0.1.0',agentInterfaces:['cli','http'],renderer:'Remotion',localOnly:true}));
 app.get('/api/catalog',(_req,res)=>res.json(catalog));
+app.get('/api/motions',(_req,res)=>res.json(MOTION_CATALOG));
+app.get('/api/tech-scenes',(_req,res)=>res.json(TECH_SCENES));
+app.get('/api/tech-scenes/:id',(req,res)=>{const preset=getTechScene(req.params.id);return preset?res.json(preset):res.status(404).json({error:'找不到科技演示'});});
+app.get('/api/motions/:id',(req,res)=>{const preset=getMotionPreset(req.params.id);return preset?res.json(preset):res.status(404).json({error:'找不到动效预设'});});
 app.get('/api/projects',async(_req,res)=>{
   const files=(await fs.readdir(path.join(DATA,'projects'))).filter(f=>f.endsWith('.json'));
   const projects=await Promise.all(files.map(async f=>{const p=JSON.parse(await fs.readFile(path.join(DATA,'projects',f),'utf8'));return {id:p.id,title:p.title,updatedAt:p.updatedAt,revision:p.revision,duration:p.duration,sceneCount:p.scenes.length,demo:!!p.demo};}));
@@ -161,7 +168,7 @@ if(process.env.NODE_ENV==='production'){
   app.get('/{*splat}',(_req,res)=>res.sendFile(path.join(ROOT,'dist/index.html')));
 }else{
   const {createServer}=await import('vite');
-  const vite=await createServer({root:ROOT,server:{middlewareMode:true},appType:'spa'});
+  const vite=await createServer({root:ROOT,server:{middlewareMode:true,watch:{ignored:['**/data/**','**/third_party/**']}},appType:'spa'});
   app.use(vite.middlewares);
 }
 app.use((error,_req,res,_next)=>{

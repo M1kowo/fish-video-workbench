@@ -1,4 +1,6 @@
 import {themeFromPreset} from './themes.mjs';
+import {validateTechScene} from './tech.mjs';
+import {validateSceneMotion} from './motions.mjs';
 export const SCENE_TYPES = ['opening', 'definition', 'flow', 'comparison', 'recap'];
 export const DEFAULT_THEME = {...themeFromPreset('cute'),brand:'大肥鱼知识局'};
 export const DEFAULT_SETTINGS = {width:1920,height:1080,fps:30};
@@ -61,7 +63,7 @@ export function validateProject(p) {
   if(!Number.isFinite(p.duration)||p.duration<=0||p.duration>7200) errors.push('时长必须在 0–7200 秒之间');
   if(!p.settings || ![24,25,30,60].includes(p.settings.fps) || p.settings.width!==1920 || p.settings.height!==1080) errors.push('首版支持 1920×1080，帧率为 24、25、30 或 60');
   if(!p.theme || !/^#[\da-f]{6}$/i.test(p.theme.accent||'')) errors.push('强调色必须是六位 HEX 颜色');
-  if(!['clean','neon','minimal','outlined'].includes(p.theme?.captionStyle)) errors.push('未知字幕样式');
+  if(!['clean','neon','minimal','outlined','tech'].includes(p.theme?.captionStyle)) errors.push('未知字幕样式');
   if(!['mist','grid','dark','paper'].includes(p.theme?.background)) errors.push('未知背景样式');
   if(p.theme?.titleStyle!==undefined&&!['plain','sticker'].includes(p.theme.titleStyle)) errors.push('未知标题样式');
   if(p.theme?.grain!==undefined&&(!Number.isFinite(p.theme.grain)||p.theme.grain<0||p.theme.grain>0.3)) errors.push('纸张颗粒强度必须在 0–0.3 之间');
@@ -89,6 +91,7 @@ export function validateProject(p) {
   if(!p.scenes.length) warnings.push('还没有场景，请生成分镜草稿或由 agent 写入分镜');
   let previousEnd=0;
   for(const s of p.scenes) {
+    errors.push(...validateSceneMotion(s),...validateTechScene(s));
     if(!s.id||ids.has(s.id)) errors.push(`场景 ID 重复或缺失：${s.id}`);ids.add(s.id);
     if(!SCENE_TYPES.includes(s.type)) errors.push(`场景 ${s.id} 类型无效`);
     if(!Number.isFinite(s.start)||!Number.isFinite(s.end)||s.start<0||s.end<=s.start||s.end>p.duration+0.05) errors.push(`场景 ${s.id} 时间越界`);

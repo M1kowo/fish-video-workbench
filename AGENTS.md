@@ -31,7 +31,7 @@ This is a local, model-independent video production workspace. Keep the server r
 
 `theme`: `accent` six-digit HEX, `background` paper/mist/grid/dark, `captionStyle` outlined/clean/neon/minimal, `brand`, `fontFamily` (a locally installed font).
 
-The two public video styles are `standard` (标准) and `cute` (可爱). `standard` uses the first purple/clean look and must render no GIFs, including cover characters. `cute` uses the second blue-paper look and enables the existing scene and cover characters. Apply with `themeFromPreset('standard'|'cute', currentTheme)` from `core/themes.mjs`; preserve scenes and their character timing. Current default is `cute`. Legacy IDs `blue-paper` and `mist` still resolve to the new names.
+The three public video styles are `standard` (标准), `cute` (可爱), and `tech` (科技). `tech` uses the DeepTutor-reference dark panels, blue lines, chapter headers, cyan captions and frame-driven demonstrations; it hides GIFs without deleting their timing. `standard` uses the first purple/clean look and must render no GIFs, including cover characters. `cute` uses the second blue-paper look and enables the existing scene and cover characters. Apply with `themeFromPreset('standard'|'cute'|'tech', currentTheme)` from `core/themes.mjs`; preserve scenes and their character timing. Current default is `cute`. Legacy IDs `blue-paper` and `mist` still resolve to the new names.
 
 Optional theme fields: `titleFontFamily` (default Microsoft YaHei for cute), `titleStyle` plain/sticker, `grain` 0–0.3, `shadow` 0–1, `coverCharacter` boolean, `charactersEnabled` boolean. Use `areCharactersEnabled(theme)` for rendering and UI visibility. Standard always hides characters, even if a caller accidentally passes `charactersEnabled:true`; do not delete the scene's character object. Grain is a static deterministic texture; all motion remains frame-driven.
 
@@ -47,6 +47,16 @@ Catalog IDs and media paths are server-managed. Use the catalog; do not invent a
 - Use `gaming_frustration` for pain points, `box_surprise` for reveals, `lean_forward` for attention, `swing` for relaxed transitions.
 - Maintain a steady role size and avoid repetitive appearances in adjacent scenes.
 - All animation must depend on the video frame, never wall-clock CSS animation or random values.
+
+## Callable motion pack
+
+Read `docs/motion-library.md` for the local 20-preset motion pack. No gallery UI is required. Discover presets offline with `node cli.mjs motion-catalog [preset-id]`, or `GET /api/motions`. Each preset documents its slot, parameters, item limits, example and pinned MIT source.
+
+Apply with `node cli.mjs motion-apply <project-id> --scene <scene-id> --preset <preset-id> [--file params.json]`, or save optional `scene.motion` in the full project using the revision you read. The four independent slots are `template`, `title`, `background`, `transition`; choose at most one preset per slot. Data templates require explicit data, never invent metrics. Keep caption and narration times unchanged. Preview/exports share the same frame-based rendering. Old projects without `motion` retain their existing behavior.
+
+## Tech demonstrations
+
+Read `docs/tech-style.md`. Discover the six continuous effects with `node cli.mjs tech-catalog [effect-id]` or `GET /api/tech-scenes`. Apply with `tech-apply <project-id> --scene <scene-id> --preset <effect-id> [--file params.json]`. These are native `scene.visual.kind` values; they take precedence over `motion.template`. Four optional `visual.events` use absolute seconds to align action beats to narration. Quiz effects require an explicit zero-based `visual.answerIndex`. Never infer or invent answer correctness. All state is derived from the video frame.
 
 ## Code edits
 

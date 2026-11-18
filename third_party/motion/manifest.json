@@ -1,0 +1,202 @@
+[
+  {
+    "id": "text-mask",
+    "repo": "https://github.com/RenderComp/free-remotion-templates",
+    "commit": "f648980e528defb7594e24c6447055f0540f340b",
+    "license": "MIT",
+    "path": "src/components/text-mask-reveal/TextMaskReveal.tsx",
+    "url": "https://github.com/RenderComp/free-remotion-templates/blob/f648980e528defb7594e24c6447055f0540f340b/src/components/text-mask-reveal/TextMaskReveal.tsx",
+    "snapshot": "third_party/motion/rendercomp/src/components/text-mask-reveal/TextMaskReveal.tsx",
+    "sha256": "bb8fbe64c4a39c339ffe92a7a269c8d3ee5c0bfec9c0139a409bf2c40ebd361a"
+  },
+  {
+    "id": "typewriter",
+    "repo": "https://github.com/degueba/onda",
+    "commit": "3c814051269597b31fee1603bef7ccfb93d091b6",
+    "license": "MIT",
+    "path": "registry/components/typewriter/Typewriter.tsx",
+    "url": "https://github.com/degueba/onda/blob/3c814051269597b31fee1603bef7ccfb93d091b6/registry/components/typewriter/Typewriter.tsx",
+    "snapshot": "third_party/motion/onda/registry/components/typewriter/Typewriter.tsx",
+    "sha256": "e484c573b2b487567078b70cbeff336c69af6753ff87d26b3e496132004ecc1c"
+  },
+  {
+    "id": "word-stagger",
+    "repo": "https://github.com/degueba/onda",
+    "commit": "3c814051269597b31fee1603bef7ccfb93d091b6",
+    "license": "MIT",
+    "path": "registry/components/word-stagger/WordStagger.tsx",
+    "url": "https://github.com/degueba/onda/blob/3c814051269597b31fee1603bef7ccfb93d091b6/registry/components/word-stagger/WordStagger.tsx",
+    "snapshot": "third_party/motion/onda/registry/components/word-stagger/WordStagger.tsx",
+    "sha256": "b2c7c6b41cefddf77a62c54f56ff505e2a55c37cd5aefcaa8748f98c619b8df0"
+  },
+  {
+    "id": "marker-highlight",
+    "repo": "https://github.com/degueba/onda",
+    "commit": "3c814051269597b31fee1603bef7ccfb93d091b6",
+    "license": "MIT",
+    "path": "registry/components/highlight/Highlight.tsx",
+    "url": "https://github.com/degueba/onda/blob/3c814051269597b31fee1603bef7ccfb93d091b6/registry/components/highlight/Highlight.tsx",
+    "snapshot": "third_party/motion/onda/registry/components/highlight/Highlight.tsx",
+    "sha256": "89edf62d8f60bb89edbf9e0c3762645af22eaaaad90db60aa3189b38f7de1559"
+  },
+  {
+    "id": "cursor-click",
+    "repo": "https://github.com/degueba/onda",
+    "commit": "3c814051269597b31fee1603bef7ccfb93d091b6",
+    "license": "MIT",
+    "path": "registry/components/cursor/Cursor.tsx",
+    "url": "https://github.com/degueba/onda/blob/3c814051269597b31fee1603bef7ccfb93d091b6/registry/components/cursor/Cursor.tsx",
+    "snapshot": "third_party/motion/onda/registry/components/cursor/Cursor.tsx",
+    "sha256": "cf14b60cfd66afe088c3310633d2efd650f772bf88b1af44a442648073cad7f2"
+  },
+  {
+    "id": "card-spotlight",
+    "repo": "https://github.com/degueba/onda",
+    "commit": "3c814051269597b31fee1603bef7ccfb93d091b6",
+    "license": "MIT",
+    "path": "registry/components/spotlight-card/SpotlightCard.tsx",
+    "url": "https://github.com/degueba/onda/blob/3c814051269597b31fee1603bef7ccfb93d091b6/registry/components/spotlight-card/SpotlightCard.tsx",
+    "snapshot": "third_party/motion/onda/registry/components/spotlight-card/SpotlightCard.tsx",
+    "sha256": "a668bd32ed3136b95089f9d4567723a85eca5e16fd4b289cd49f08ae246028d3"
+  },
+  {
+    "id": "progress-steps",
+    "repo": "https://github.com/degueba/onda",
+    "commit": "3c814051269597b31fee1603bef7ccfb93d091b6",
+    "license": "MIT",
+    "path": "registry/components/progress-steps/ProgressSteps.tsx",
+    "url": "https://github.com/degueba/onda/blob/3c814051269597b31fee1603bef7ccfb93d091b6/registry/components/progress-steps/ProgressSteps.tsx",
+    "snapshot": "third_party/motion/onda/registry/components/progress-steps/ProgressSteps.tsx",
+    "sha256": "90af10185e6a52b3a71c66cd134a45b942c8c18528a52cf495a26d8710f4d214"
+  },
+  {
+    "id": "draw-connections",
+    "repo": "https://github.com/degueba/onda",
+    "commit": "3c814051269597b31fee1603bef7ccfb93d091b6",
+    "license": "MIT",
+    "path": "registry/components/draw-on/DrawOn.tsx",
+    "url": "https://github.com/degueba/onda/blob/3c814051269597b31fee1603bef7ccfb93d091b6/registry/components/draw-on/DrawOn.tsx",
+    "snapshot": "third_party/motion/onda/registry/components/draw-on/DrawOn.tsx",
+    "sha256": "c19921f25ebfc60ef0f819b8a4e3e46777b6a515a0b37131bf1567dfc8650ff6"
+  },
+  {
+    "id": "progress-bar",
+    "repo": "https://github.com/degueba/onda",
+    "commit": "3c814051269597b31fee1603bef7ccfb93d091b6",
+    "license": "MIT",
+    "path": "registry/components/progress-bar/ProgressBar.tsx",
+    "url": "https://github.com/degueba/onda/blob/3c814051269597b31fee1603bef7ccfb93d091b6/registry/components/progress-bar/ProgressBar.tsx",
+    "snapshot": "third_party/motion/onda/registry/components/progress-bar/ProgressBar.tsx",
+    "sha256": "b5cb909362021d6e6a02ab34449581d52fdbe7f3edde4e1dc51d7334cde2b9bd"
+  },
+  {
+    "id": "kpi-counter",
+    "repo": "https://github.com/RenderComp/free-remotion-templates",
+    "commit": "f648980e528defb7594e24c6447055f0540f340b",
+    "license": "MIT",
+    "path": "src/components/kpi-counter/KpiCounter.tsx",
+    "url": "https://github.com/RenderComp/free-remotion-templates/blob/f648980e528defb7594e24c6447055f0540f340b/src/components/kpi-counter/KpiCounter.tsx",
+    "snapshot": "third_party/motion/rendercomp/src/components/kpi-counter/KpiCounter.tsx",
+    "sha256": "0ddc52f49062e1570487f531f3e4589701d7616b5e73ec70071abc25d35b1a9c"
+  },
+  {
+    "id": "bar-chart",
+    "repo": "https://github.com/RenderComp/free-remotion-templates",
+    "commit": "f648980e528defb7594e24c6447055f0540f340b",
+    "license": "MIT",
+    "path": "src/components/bar-chart-anim/BarChartAnim.tsx",
+    "url": "https://github.com/RenderComp/free-remotion-templates/blob/f648980e528defb7594e24c6447055f0540f340b/src/components/bar-chart-anim/BarChartAnim.tsx",
+    "snapshot": "third_party/motion/rendercomp/src/components/bar-chart-anim/BarChartAnim.tsx",
+    "sha256": "7616e6752a242cfee13d46b16f78236382c0d8c6e854b89c7f1b3a525e705dee"
+  },
+  {
+    "id": "line-chart",
+    "repo": "https://github.com/RenderComp/free-remotion-templates",
+    "commit": "f648980e528defb7594e24c6447055f0540f340b",
+    "license": "MIT",
+    "path": "src/components/line-chart-anim/LineChartAnim.tsx",
+    "url": "https://github.com/RenderComp/free-remotion-templates/blob/f648980e528defb7594e24c6447055f0540f340b/src/components/line-chart-anim/LineChartAnim.tsx",
+    "snapshot": "third_party/motion/rendercomp/src/components/line-chart-anim/LineChartAnim.tsx",
+    "sha256": "727cb6c5bc0882b7e2158b2a5c6a90d07270753b091c8ce470a4a940f7b3afde"
+  },
+  {
+    "id": "grid-flow",
+    "repo": "https://github.com/degueba/onda",
+    "commit": "3c814051269597b31fee1603bef7ccfb93d091b6",
+    "license": "MIT",
+    "path": "registry/components/dynamic-grid/DynamicGrid.tsx",
+    "url": "https://github.com/degueba/onda/blob/3c814051269597b31fee1603bef7ccfb93d091b6/registry/components/dynamic-grid/DynamicGrid.tsx",
+    "snapshot": "third_party/motion/onda/registry/components/dynamic-grid/DynamicGrid.tsx",
+    "sha256": "d0d16a007fab23a0e5937977045806d9fca192a03b2d4f301bf744dcdd2095b0"
+  },
+  {
+    "id": "mesh-gradient",
+    "repo": "https://github.com/degueba/onda",
+    "commit": "3c814051269597b31fee1603bef7ccfb93d091b6",
+    "license": "MIT",
+    "path": "registry/components/mesh-gradient/MeshGradient.tsx",
+    "url": "https://github.com/degueba/onda/blob/3c814051269597b31fee1603bef7ccfb93d091b6/registry/components/mesh-gradient/MeshGradient.tsx",
+    "snapshot": "third_party/motion/onda/registry/components/mesh-gradient/MeshGradient.tsx",
+    "sha256": "c545c4496d67f1539a050bcd21fefbee5f80c2f586903f4fb4d48e437c707ba0"
+  },
+  {
+    "id": "film-grain",
+    "repo": "https://github.com/degueba/onda",
+    "commit": "3c814051269597b31fee1603bef7ccfb93d091b6",
+    "license": "MIT",
+    "path": "registry/components/grain-overlay/GrainOverlay.tsx",
+    "url": "https://github.com/degueba/onda/blob/3c814051269597b31fee1603bef7ccfb93d091b6/registry/components/grain-overlay/GrainOverlay.tsx",
+    "snapshot": "third_party/motion/onda/registry/components/grain-overlay/GrainOverlay.tsx",
+    "sha256": "636f3e8f659bdeb2b23c9d09ce72baadd345202cb23fe3b797f29b87682feaac"
+  },
+  {
+    "id": "slide-push",
+    "repo": "https://github.com/RenderComp/free-remotion-templates",
+    "commit": "f648980e528defb7594e24c6447055f0540f340b",
+    "license": "MIT",
+    "path": "src/components/slide-wipe/SlideWipe.tsx",
+    "url": "https://github.com/RenderComp/free-remotion-templates/blob/f648980e528defb7594e24c6447055f0540f340b/src/components/slide-wipe/SlideWipe.tsx",
+    "snapshot": "third_party/motion/rendercomp/src/components/slide-wipe/SlideWipe.tsx",
+    "sha256": "f4ed1500396e4860245c88565dbc086053b171448503f37d4dae78e304b9a308"
+  },
+  {
+    "id": "circle-wipe",
+    "repo": "https://github.com/RenderComp/free-remotion-templates",
+    "commit": "f648980e528defb7594e24c6447055f0540f340b",
+    "license": "MIT",
+    "path": "src/components/transition-circle-wipe/TransitionCircleWipe.tsx",
+    "url": "https://github.com/RenderComp/free-remotion-templates/blob/f648980e528defb7594e24c6447055f0540f340b/src/components/transition-circle-wipe/TransitionCircleWipe.tsx",
+    "snapshot": "third_party/motion/rendercomp/src/components/transition-circle-wipe/TransitionCircleWipe.tsx",
+    "sha256": "1a291611dec6d5891900d06686ee439a7f1c85a2e71223b9c612daf0d560934e"
+  },
+  {
+    "id": "card-flip",
+    "repo": "https://github.com/RenderComp/free-remotion-templates",
+    "commit": "f648980e528defb7594e24c6447055f0540f340b",
+    "license": "MIT",
+    "path": "src/components/card-flip-transition/CardFlipTransition.tsx",
+    "url": "https://github.com/RenderComp/free-remotion-templates/blob/f648980e528defb7594e24c6447055f0540f340b/src/components/card-flip-transition/CardFlipTransition.tsx",
+    "snapshot": "third_party/motion/rendercomp/src/components/card-flip-transition/CardFlipTransition.tsx",
+    "sha256": "2e7b4c8f10c2d67f9bfef8ccf2146468c1e0f440cb617645ab3dc3245ae4ee67"
+  },
+  {
+    "id": "chat-demo",
+    "repo": "https://github.com/RenderComp/free-remotion-templates",
+    "commit": "f648980e528defb7594e24c6447055f0540f340b",
+    "license": "MIT",
+    "path": "src/components/community-chat/CommunityChat.tsx",
+    "url": "https://github.com/RenderComp/free-remotion-templates/blob/f648980e528defb7594e24c6447055f0540f340b/src/components/community-chat/CommunityChat.tsx",
+    "snapshot": "third_party/motion/rendercomp/src/components/community-chat/CommunityChat.tsx",
+    "sha256": "dfbf044202f1919d9a633a6195145e4af0584066d97991678b47579434446824"
+  },
+  {
+    "id": "chapter-card",
+    "repo": "https://github.com/RenderComp/free-remotion-templates",
+    "commit": "f648980e528defb7594e24c6447055f0540f340b",
+    "license": "MIT",
+    "path": "src/components/chapter-title/ChapterTitle.tsx",
+    "url": "https://github.com/RenderComp/free-remotion-templates/blob/f648980e528defb7594e24c6447055f0540f340b/src/components/chapter-title/ChapterTitle.tsx",
+    "snapshot": "third_party/motion/rendercomp/src/components/chapter-title/ChapterTitle.tsx",
+    "sha256": "8caae393cf07cd043b7521305974504f4d9dab4e8178fffee7c52d780b049ed8"
+  }
+]
